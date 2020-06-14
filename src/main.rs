@@ -94,7 +94,7 @@ async fn main() {
     print!("==> ");
     io::stdout().flush().unwrap();
     let stdin = io::stdin();
-    let input = stdin
+    let input = items.len() - 1 - stdin
         .lock()
         .lines()
         .next()
