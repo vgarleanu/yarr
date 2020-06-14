@@ -168,7 +168,7 @@ impl Captcha {
 
         let mut file = std::fs::File::create(format!("{}.png", self.sk.as_str())).unwrap();
         let bytes = res.bytes().await.unwrap();
-        file.write(&bytes).unwrap();
+        file.write_all(&bytes).unwrap();
 
         Ok(())
     }

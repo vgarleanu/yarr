@@ -1,7 +1,7 @@
-use select::predicate::{Attr, And, Class, Name};
-use select::document::Document;
 use crate::captcha::Captcha;
 use async_recursion::async_recursion;
+use select::document::Document;
+use select::predicate::{And, Attr, Class, Name};
 
 pub struct ExtItem {
     pub captcha: Captcha,
@@ -16,7 +16,11 @@ impl ExtItem {
     pub fn new(cookie: String, base_url: String, id: String, uagent: String) -> Self {
         Self {
             captcha: Captcha::new(base_url.clone()),
-            cookie, base_url, id, uagent, magnet: String::new(),
+            cookie,
+            base_url,
+            id,
+            uagent,
+            magnet: String::new(),
         }
     }
 
@@ -37,7 +41,8 @@ impl ExtItem {
         }
 
         let doc = Document::from(res.text().await.unwrap().as_ref());
-        let links = doc.find(And(Class("lista-rounded"), Name("table")))
+        let links = doc
+            .find(And(Class("lista-rounded"), Name("table")))
             .flat_map(|x| x.find(Attr("href", ())).collect::<Vec<_>>())
             .collect::<Vec<_>>();
 

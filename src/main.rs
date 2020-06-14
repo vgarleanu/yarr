@@ -1,13 +1,14 @@
 use clap::{App, Arg};
+use rustbg::extitem::ExtItem;
 use rustbg::search::Search;
 use rustbg::Config;
-use rustbg::extitem::ExtItem;
 use std::fs::File;
 use std::io::BufReader;
-use std::sync::RwLock;
 use std::io::{self, BufRead, Write};
+use std::sync::RwLock;
 
 const UAGENT: &str = "RarSpyder/1.0 (Linux x86_64;) Rust/1.44.0-nightly";
+const MIRROR: &str = "rarbgproxied.org";
 
 lazy_static::lazy_static! {
     static ref CONFIG: RwLock<Config> = {
@@ -21,7 +22,7 @@ lazy_static::lazy_static! {
 
         let config = Config {
             cookie: String::new(),
-            base_url: "rarbgproxied.org".to_string()
+            base_url: MIRROR.to_string()
         };
 
         config.dump_config();
@@ -70,7 +71,11 @@ async fn main() {
         )
         .get_matches();
 
-    let mut search = Search::new("rarbgproxied.org".into(), CONFIG.read().unwrap().cookie.clone(), UAGENT.into());
+    let mut search = Search::new(
+        MIRROR.into(),
+        CONFIG.read().unwrap().cookie.clone(),
+        UAGENT.into(),
+    );
 
     let to_search = matches.value_of("name").unwrap();
     println!("Searching for {}", to_search);
@@ -89,11 +94,18 @@ async fn main() {
     print!("==> ");
     io::stdout().flush().unwrap();
     let stdin = io::stdin();
-    let input = stdin.lock().lines().next().unwrap().unwrap().parse::<usize>().unwrap();
+    let input = stdin
+        .lock()
+        .lines()
+        .next()
+        .unwrap()
+        .unwrap()
+        .parse::<usize>()
+        .unwrap();
 
     let item = items[input].clone();
 
-    let mut ext = ExtItem::new(search.get_cookie(), "rarbgproxied.org".into(), item.id, UAGENT.into());
+    let mut ext = ExtItem::new(search.get_cookie(), MIRROR.into(), item.id, UAGENT.into());
     ext.fetch().await.unwrap();
 
     println!("{}", ext.magnet);
